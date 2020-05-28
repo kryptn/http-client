@@ -27,8 +27,10 @@ func TestSimpleParse(t *testing.T) {
     key: value
 	key2: more value
 	block2 {
-		haha: nested key values
-		yes: yes haha
+		justString: first string key
+		functionInterpolation: two words {oneFunction arg1 arg2} final string
+		nestedFunctions: with {fn argument {env ENVIRONMENT}}
+		filteredFunctions: with {firstFn arg | secondFn arg2}
 	}
 }
 `

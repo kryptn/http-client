@@ -20,7 +20,7 @@ type Argument Value
 
 type KeyValuePair struct {
 	Key Key
-	Value Value
+	Values []Value
 }
 
 type Key string

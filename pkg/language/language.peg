@@ -9,6 +9,15 @@ func ifs(v interface{}) []interface{} {
 	return v.([]interface{})
 }
 
+func dumps(origin string, values ...interface{}){
+    // helps debug
+    for _, value := range values {
+        print("dumping from ", origin, ":\n\n")
+        spew.Dump(value)
+        print("\n\n")
+    }
+}
+
 }
 
 Document <- _ block:Block _ EOF {
@@ -47,26 +56,39 @@ Block <- blockType:Word _ '{' _ items:(KeyValuePair / Block)* _ '}' {
 
 FunctionInvocation <- '{' _ fnCall:FunctionCall+ '}' {
     fns := []FunctionInvocation{}
+    dumps("FunctionInvocation", c, fnCall)
     for _, fn := range ifs(fnCall){
         fns = append(fns, fn.(FunctionInvocation))
     }
     return fns, nil
 }
 
-FunctionCall <- fnName:Name argsi:Argument* _ '|'? {
+FunctionCall <- fnName:Name argsi:Argument* _ ('|' _)? {
+    dumps("FunctionCall", c, c.text, fnName, argsi)
     args := []Argument{}
     for _, arg := range ifs(argsi){
         args = append(args, arg.(Argument))
+
     }
     return FunctionInvocation{FuncName:fnName.(string), Arguments: args}, nil
 }
 
-Argument <- ' '+ v:Value {
-    return v, nil
+Argument <- ' '+ v:ArgumentValue {
+    return Argument{
+        StrValue: v.(Value).StrValue,
+        FuncValue: v.(Value).FuncValue,
+    }, nil
 }
 
-KeyValuePair <- _ k:Key ':' _ v:Value _ {
-    return KeyValuePair{Key:k.(Key), Value:v.(Value)}, nil
+
+KeyValuePair <- _ k:Key ':' _ v:Value+ _ {
+    // dumps("KeyValuePair", c, k, v)
+    values := []Value{}
+    for _, value := range v.([]interface{}){
+        values = append(values, value.(Value))
+    }
+
+    return KeyValuePair{Key:k.(Key), Values:values}, nil
 }
 
 Word <- [0-9a-z_-]i+ {
@@ -77,23 +99,27 @@ Name <- [a-z]i [0-9a-z_-]i* {
     return string(c.text), nil
 }
 
-Words <- _ w:(Word _)* {
-    result := []string{}
-    for _, i := range ifs(w) {
-        first := i.([]interface{})[0]
-        result = append(result, first.(string))
-    }
-    return result, nil
-}
-
+Words <- (Word / [ \t]+)+
 
 Key <- w:Word {
     return Key(w.(string)), nil
 }
 
+// any number of words
 Value <- fn:FunctionInvocation {
-    return fn.(FunctionInvocation), nil
-} / (Word / [ \t]+)* {
+    dumps("Value FunctionInvocation", c, fn)
+    return Value{FuncValue: fn.([]FunctionInvocation)}, nil
+} / Words {
+    dumps("Value Word", c)
+    return Value{StrValue: string(c.text)}, nil
+}
+
+// assumes one word per argument
+ArgumentValue <- fn:FunctionInvocation {
+    dumps("ArgumentValue FunctionInvocation", c, fn)
+    return Value{FuncValue: fn.([]FunctionInvocation)}, nil
+} / Word {
+    dumps("ArgumentValue Word", c)
     return Value{StrValue: string(c.text)}, nil
 }
 
