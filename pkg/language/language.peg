@@ -1,0 +1,113 @@
+{
+package language
+
+// helpers
+func ifs(v interface{}) []interface{} {
+	if v == nil {
+		return nil
+	}
+	return v.([]interface{})
+}
+
+}
+
+Document <- _ block:Block _ EOF {
+    return block.(Block), nil
+}
+
+Block <- blockType:Word _ '{' _ items:(KeyValuePair / Block)* _ '}' {
+
+    // print("\n\ndumping c\n")
+    // spew.Dump(c)
+    // print("\n\ndumping blockType\n")
+    // spew.Dump(blockType)
+    // print("\n\ndumping items\n")
+    // spew.Dump(items)
+
+    keyValuePairs := []KeyValuePair{}
+    subBlocks := []Block{}
+
+    for _, item := range ifs(items){
+        switch v := item.(type) {
+        case KeyValuePair:
+            keyValuePairs = append(keyValuePairs, v)
+        case Block:
+            subBlocks = append(subBlocks, v)
+        default:
+            return nil, errors.New("expected Block or KeyValuePair") // todo: does this need more?
+        }
+    }
+
+    return Block{
+        BlockType: blockType.(string),
+        KeyValuePairs: keyValuePairs,
+        SubBlocks: subBlocks,
+    }, nil
+}
+
+FunctionInvocation <- '{' _ fnCall:FunctionCall+ '}' {
+    fns := []FunctionInvocation{}
+    for _, fn := range ifs(fnCall){
+        fns = append(fns, fn.(FunctionInvocation))
+    }
+    return fns, nil
+}
+
+FunctionCall <- fnName:Name argsi:Argument* _ '|'? {
+    args := []Argument{}
+    for _, arg := range ifs(argsi){
+        args = append(args, arg.(Argument))
+    }
+    return FunctionInvocation{FuncName:fnName.(string), Arguments: args}, nil
+}
+
+Argument <- ' '+ v:Value {
+    return v, nil
+}
+
+KeyValuePair <- _ k:Key ':' _ v:Value _ {
+    return KeyValuePair{Key:k.(Key), Value:v.(Value)}, nil
+}
+
+Word <- [0-9a-z_-]i+ {
+    return string(c.text), nil
+}
+
+Name <- [a-z]i [0-9a-z_-]i* {
+    return string(c.text), nil
+}
+
+Words <- _ w:(Word _)* {
+    result := []string{}
+    for _, i := range ifs(w) {
+        first := i.([]interface{})[0]
+        result = append(result, first.(string))
+    }
+    return result, nil
+}
+
+
+Key <- w:Word {
+    return Key(w.(string)), nil
+}
+
+Value <- fn:FunctionInvocation {
+    return fn.(FunctionInvocation), nil
+} / (Word / [ \t]+)* {
+    return Value{StrValue: string(c.text)}, nil
+}
+
+EOF <- !.
+
+sp <- [ \t]* {
+    return nil, nil
+}
+
+nl <- [\r\n]* {
+    return nil, nil
+}
+
+_ "whitespace" <- [ \t\r\n]* {
+    return nil, nil
+}
+
