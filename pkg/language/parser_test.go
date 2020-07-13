@@ -32,6 +32,11 @@ func TestSimpleParse(t *testing.T) {
 		nestedFunctions: with {fn argument {env ENVIRONMENT}}
 		filteredFunctions: with {firstFn arg | secondFn arg2}
 	}
+	key3: aaa
+	multiLine: """
+		words words words
+	"""
+	key4: aaa "aaa {fn a b}" aaa
 }
 `
 

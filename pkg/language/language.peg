@@ -9,15 +9,6 @@ func ifs(v interface{}) []interface{} {
 	return v.([]interface{})
 }
 
-func dumps(origin string, values ...interface{}){
-    // helps debug
-    for _, value := range values {
-        print("dumping from ", origin, ":\n\n")
-        spew.Dump(value)
-        print("\n\n")
-    }
-}
-
 }
 
 Document <- _ block:Block _ EOF {
@@ -25,13 +16,6 @@ Document <- _ block:Block _ EOF {
 }
 
 Block <- blockType:Word _ '{' _ items:(KeyValuePair / Block)* _ '}' {
-
-    // print("\n\ndumping c\n")
-    // spew.Dump(c)
-    // print("\n\ndumping blockType\n")
-    // spew.Dump(blockType)
-    // print("\n\ndumping items\n")
-    // spew.Dump(items)
 
     keyValuePairs := []KeyValuePair{}
     subBlocks := []Block{}
@@ -82,7 +66,7 @@ Argument <- ' '+ v:ArgumentValue {
 
 
 KeyValuePair <- _ k:Key ':' _ v:Value+ _ {
-    // dumps("KeyValuePair", c, k, v)
+    dumps("KeyValuePair", c, k, v)
     values := []Value{}
     for _, value := range v.([]interface{}){
         values = append(values, value.(Value))
@@ -102,6 +86,7 @@ Name <- [a-z]i [0-9a-z_-]i* {
 Words <- (Word / [ \t]+)+
 
 Key <- w:Word {
+    dumps("Key", c, w)
     return Key(w.(string)), nil
 }
 
@@ -109,8 +94,25 @@ Key <- w:Word {
 Value <- fn:FunctionInvocation {
     dumps("Value FunctionInvocation", c, fn)
     return Value{FuncValue: fn.([]FunctionInvocation)}, nil
-} / Words {
+} / MultiLineValue / QuotedValue / Words {
     dumps("Value Word", c)
+    return Value{StrValue: string(c.text)}, nil
+}
+
+QuotedValue <- "\"" contents:QuotedContents "\"" {
+    return contents.(Value), nil
+}
+
+QuotedContents <- (. !'"')* . {
+    return Value{StrValue: string(c.text)}, nil
+}
+
+MultiLineValue <- tplq contents:MultiLineContents tplq {
+    dumps("MultiLineValue", c, contents)
+    return contents.(Value), nil
+}
+
+MultiLineContents <- (. !tplq)* . {
     return Value{StrValue: string(c.text)}, nil
 }
 
@@ -131,6 +133,11 @@ sp <- [ \t]* {
 
 nl <- [\r\n]* {
     return nil, nil
+}
+
+tplq <- "\"\"\"" {
+    dumps("tplq", c)
+    return c, nil
 }
 
 _ "whitespace" <- [ \t\r\n]* {
