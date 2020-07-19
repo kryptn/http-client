@@ -58,37 +58,29 @@ const (
 	FunctionShell
 )
 
-const commonHttp = []SubBlockEnum{SubBlockHeaders, SubBlockJson, SubBlockData}
+// const commonHttp = []SubBlockEnum{SubBlockHeaders, SubBlockJson, SubBlockData}
 
-func SubBlockTypesForBlockType(bt BlockEnum) ([]SubBlockEnum, error) {
+// func SubBlockTypesForBlockType(bt BlockEnum) ([]SubBlockEnum, error) {
 
-	switch bt {
-	case BlockHTTP:
-		commonHttp
-	case BlockPOST:
-		commonHttp
-	case BlockDELETE:
-		commonHttp
-	case BlockGET:
-		commonHttp
-	case BlockPUT:
-		commonHttp
-	case BlockPATCH:
-		commonHttp
-	case BlockGraphQL:
-		commonHttp
-	default:
-		return nil, error.new("oh no")
-	}
+// 	switch bt {
+// 	case BlockHTTP:
+// 		commonHttp
+// 	case BlockPOST:
+// 		commonHttp
+// 	case BlockDELETE:
+// 		commonHttp
+// 	case BlockGET:
+// 		commonHttp
+// 	case BlockPUT:
+// 		commonHttp
+// 	case BlockPATCH:
+// 		commonHttp
+// 	case BlockGraphQL:
+// 		commonHttp
+// 	default:
+// 		return nil, errors.New("oh no")
+// 	}
 
-	return nil, nil
-}
+// 	return nil, nil
+// }
 
-func RequiredKeysForBlockType(bt BlockEnum) ([]string, error) {
-
-	return nil, nil
-}
-
-func RequiredKeysForSubBlockType(sbt SubBlockEnum) ([]string, error) {
-	return nil, nil
-}
