@@ -14,6 +14,8 @@ var (
 	userLicense  string
 	documentName string
 
+	noHistory bool
+
 	debugDumpAst    bool
 	debugDumpClient bool
 
@@ -34,6 +36,7 @@ func init() {
 
 	rootCmd.PersistentFlags().BoolVar(&debugDumpAst, "dump-ast", false, "Dump AST")
 	rootCmd.PersistentFlags().BoolVar(&debugDumpClient, "dump-client", false, "Dump Client")
+	rootCmd.PersistentFlags().BoolVar(&noHistory, "no-history", false, "Don't store response in history")
 }
 
 func er(msg interface{}) {
