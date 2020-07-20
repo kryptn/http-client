@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/kryptn/http-client/internal/runner"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/kryptn/http-client/language"
 )
@@ -79,9 +81,17 @@ func (c *Client) Execute() (string, error) {
 		spew.Dump(c)
 	}
 
+	var response = ""
+
 	if c.sendRequest {
-		fmt.Print("\nwould send right now if i could")
+		var err error
+		response, err = runner.RunBlock(result)
+		if err != nil {
+			return response, err
+		}
+
+		fmt.Print("sent? ")
 	}
 
-	return "\n\nwe did it\n", nil
+	return response, nil
 }
