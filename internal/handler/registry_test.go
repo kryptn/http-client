@@ -97,7 +97,7 @@ var getRegistryCheck = []struct {
 	{registerNames: []string{"caseInsName"}, lookupName: "caseinsname", expectError: false},
 }
 
-func runGetBlockRegistry(registryNames []string, lookupName string, willError bool) func(*testing.T) {
+func runGetBlockHandlerTest(registryNames []string, lookupName string, willError bool) func(*testing.T) {
 	for _, name := range registryNames {
 		_ = registerBlockHandler(name, testBlockHandlerFunc)
 	}
@@ -116,6 +116,29 @@ func runGetBlockRegistry(registryNames []string, lookupName string, willError bo
 func Test_GetBlockHandler(t *testing.T) {
 	for i, testCase := range getRegistryCheck {
 		name := fmt.Sprintf("function name duplication test %d", i)
-		t.Run(name, runGetBlockRegistry(testCase.registerNames, testCase.lookupName, testCase.expectError))
+		t.Run(name, runGetBlockHandlerTest(testCase.registerNames, testCase.lookupName, testCase.expectError))
+	}
+}
+
+func runGetFunctionHandlerTest(registryNames []string, lookupName string, willError bool) func(*testing.T) {
+	for _, name := range registryNames {
+		_ = registerFunctionHandler(name, testFunctionHandlerFunc)
+	}
+
+	return func(t *testing.T) {
+		_, err := GetFunctionHandler(lookupName)
+		if willError && err == nil {
+			t.Errorf("case failed, expected error and got none")
+
+		} else if !willError && err != nil {
+			t.Errorf("case failed, did not expect error ")
+		}
+	}
+}
+
+func Test_GetFunctionHandler(t *testing.T) {
+	for i, testCase := range getRegistryCheck {
+		name := fmt.Sprintf("function name duplication test %d", i)
+		t.Run(name, runGetFunctionHandlerTest(testCase.registerNames, testCase.lookupName, testCase.expectError))
 	}
 }
