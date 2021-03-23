@@ -2,9 +2,19 @@
 # It is not intended for manual editing.
 [[package]]
 name = "abnf"
-version = "0.6.1"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47feb9fbcef700639ef28e04ca2a87eab8161a01a075ee227b15c90143805462"
+checksum = "76d5f963d2236fd5701b660a9733bd22a5be300267955c71fa03bdf75ecb30b5"
+dependencies = [
+ "abnf-core",
+ "nom",
+]
+
+[[package]]
+name = "abnf-core"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "137c894fdb05ad3feb514cec800945cfebbb6435c73f9c2097b953e44a106273"
 dependencies = [
  "nom",
 ]
@@ -12,8 +22,7 @@ dependencies = [
 [[package]]
 name = "abnf_to_pest"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "372baaa5d3a422d8816b513bcdb2c120078c8614f7ecbcc3baf34a1634bbbe2e"
+source = "git+https://github.com/kryptn/dhall-rust?branch=kryptn/add-cors-check#81b4cee56ed6bab08affc575f590b00703a15719"
 dependencies = [
  "abnf",
  "indexmap",
@@ -183,8 +192,7 @@ checksum = "8aebca1129a03dc6dc2b127edd729435bbc4a37e1d5f4d7513165089ceb02634"
 [[package]]
 name = "dhall"
 version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0dc4d9d9848124c8c10f24e3696f86d5249d7d2dca8ca0556cff10f001d51e8"
+source = "git+https://github.com/kryptn/dhall-rust?branch=kryptn/add-cors-check#81b4cee56ed6bab08affc575f590b00703a15719"
 dependencies = [
  "abnf_to_pest",
  "annotate-snippets",
@@ -208,10 +216,8 @@ dependencies = [
 [[package]]
 name = "dhall_proc_macros"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf6cff1e2ddd03851652e0cde982b01dc877c9fc9da9ba25ad4241a151945f09"
+source = "git+https://github.com/kryptn/dhall-rust?branch=kryptn/add-cors-check#81b4cee56ed6bab08affc575f590b00703a15719"
 dependencies = [
- "itertools",
  "proc-macro2",
  "quote",
  "syn",
@@ -902,10 +908,11 @@ checksum = "ac74c624d6b2d21f425f752262f42188365d7b8ff1aff74c82e45136510a4857"
 
 [[package]]
 name = "pretty"
-version = "0.5.2"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f60c0d9f6fc88ecdd245d90c1920ff76a430ab34303fc778d33b1d0a4c3bf6d3"
+checksum = "ad9940b913ee56ddd94aec2d3cd179dd47068236f42a1a6415ccf9d880ce2a61"
 dependencies = [
+ "arrayvec",
  "typed-arena",
 ]
 
@@ -1104,8 +1111,7 @@ dependencies = [
 [[package]]
 name = "serde_dhall"
 version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e01dfb806cc18b2cc347254781948862dba85e6fc2cf300b6cb321fa8fed9137"
+source = "git+https://github.com/kryptn/dhall-rust?branch=kryptn/add-cors-check#81b4cee56ed6bab08affc575f590b00703a15719"
 dependencies = [
  "dhall",
  "dhall_proc_macros",
@@ -1319,9 +1325,9 @@ checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
 
 [[package]]
 name = "typed-arena"
-version = "1.7.0"
+version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9b2228007eba4120145f785df0f6c92ea538f5a3635a612ecf4e334c8c1446d"
+checksum = "0685c84d5d54d1c26f7d3eb96cd41550adb97baed141a761cf335d3d33bcd0ae"
 
 [[package]]
 name = "typenum"

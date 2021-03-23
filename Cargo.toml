@@ -13,3 +13,6 @@ serde_json = "1.0.64"
 serde_dhall = "0.10.0"
 reqwest = { version = "0.11", features = ["blocking", "json"] }
 clap = "~2.27.0"
+
+[patch.crates-io]
+serde_dhall = { git = "https://github.com/kryptn/dhall-rust", branch = "kryptn/add-cors-check" }
