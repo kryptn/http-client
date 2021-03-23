@@ -1,6 +1,8 @@
-let withVariables = \(address : Text) -> \(document : Text) -> \(variablesType : Type) -> \(variables : variablesType) -> {
+let Map = https://prelude.dhall-lang.org/v15.0.0/Map/Type
+
+let withVariables = \(address : Text) -> \(headers : Map Text Text) -> \(document : Text) -> \(variablesType : Type) -> \(variables : variablesType) -> {
     method = "POST",
-    headers = {=},
+    headers = headers,
     address = address,
     data = {
         query = document,
@@ -8,9 +10,9 @@ let withVariables = \(address : Text) -> \(document : Text) -> \(variablesType :
     }
 }
 
-let query = \(address : Text) -> \(document : Text) -> {
+let query = \(address : Text) -> \(headers : Map Text Text) -> \(document : Text) -> {
     method = "POST",
-    headers = {=},
+    headers = headers,
     address = address,
     data = {
         query = document,
