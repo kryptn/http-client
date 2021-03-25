@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use std::collections::HashMap;
 use std::error::Error;
-use std::io::{self, Write};
 use std::path::Path;
 
 #[macro_use]
@@ -27,8 +26,15 @@ struct Response {
 }
 
 fn request_from_file<P: AsRef<Path>>(path: P) -> Result<Request, Box<dyn Error>> {
-    let req: Request = serde_dhall::from_file(path).parse()?;
-    Ok(req)
+    let deserializer = serde_dhall::from_file(path);
+    let thing: Result<Request, serde_dhall::Error> = deserializer.parse();
+    match thing {
+        Ok(req) => Ok(req),
+        Err(err) => {
+            eprintln!("{}", err);
+            Err(Box::new(err))
+        }
+    }
 }
 
 fn run_req(req: &Request) -> Result<Response, Box<dyn Error>> {
@@ -36,13 +42,13 @@ fn run_req(req: &Request) -> Result<Response, Box<dyn Error>> {
 
     let address = req.address.clone();
 
-    let client = match req.method.as_str() {
-        "HEAD" | "head" => client.head(address),
-        "POST" | "post" => client.post(address),
-        "PUT" | "put" => client.put(address),
-        "DELETE" | "delete" => client.delete(address),
-        "PATCH" | "patch" => client.patch(address),
-        "GET" | "get" | _ => client.get(address),
+    let client = match req.method.to_lowercase().as_str() {
+        "head" => client.head(address),
+        "post" => client.post(address),
+        "put" => client.put(address),
+        "delete" => client.delete(address),
+        "patch" => client.patch(address),
+        "get" | _ => client.get(address),
     };
 
     let mut headers = HeaderMap::new();
@@ -79,24 +85,26 @@ fn store_result<P: AsRef<Path>>(
     resp: &Response,
     path: P,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    // println!("would try to store now");
+    // eprintln!("would try to store now");
 
-    match std::fs::create_dir_all("./resp") {
-        Ok(obj) => {}
-        Err(error) => println!("{}", error),
+    let path = std::fs::canonicalize(path)?;
+    let filename = path.file_name().unwrap();
+    let mut p = path.parent().unwrap().to_path_buf();
+    p.push("resp");
+
+    match std::fs::create_dir_all(&p) {
+        Ok(..) => eprintln!("created dir {:?}", "resp_root"),
+        Err(error) => eprintln!("error on create dir {}", error),
     }
-
-    // let res = std::fs::create_dir_all("./resp");
-    // println!("{}", res);
 
     match serde_dhall::serialize(&resp.data).to_string() {
         Ok(o) => {
-            let out_path = Path::new("./resp").join(path);
-            std::fs::write(out_path, o)?;
+            p.push(filename);
+            eprintln!("trying to output to {:?}", p);
+            std::fs::write(p, o)?;
         }
-        Err(error) => io::stderr().write_all(b"Error on write\n")?,
+        Err(error) => eprintln!("Error on write: {}", error),
     }
-
     Ok(())
 }
 
@@ -134,6 +142,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("resp", Some(sub_match)) => {
             //println!("matched resp");
             let filename = sub_match.value_of("FILENAME").unwrap();
+
             let resp_path = Path::new("./resp").join(filename);
 
             let value: serde_json::Value = serde_dhall::from_file(resp_path).parse()?;
